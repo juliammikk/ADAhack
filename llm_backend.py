@@ -26,8 +26,8 @@ class Interface:
 
         response = self.llm.invoke(f'[{context}] {query} in beginner English')
 
-        lang_text = self.en_to_lang(response)
-        en_text = self.lang_to_en(lang_text)
+        lang_text = self.en_to_lang.translate(response)
+        en_text = self.lang_to_en.translate(lang_text)
 
         speech = tts(lang_text, lang=language)
         speech.save('voice.mp3')
