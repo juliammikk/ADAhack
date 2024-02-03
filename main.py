@@ -2,7 +2,7 @@ import sys
 
 from PyQt6.QtCore import QUrl, QRect, Qt, QCoreApplication
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QMainWindow, QLabel
+from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QMainWindow, QLabel, QLineEdit
 from PyQt6.QtWidgets import (QWidget, QToolTip,
     QPushButton, QApplication)
 from PyQt6.QtGui import QFont
@@ -107,27 +107,34 @@ class Bakery_Window(object):
         # player.play()
 
         self.play_button = QPushButton('Play', self.centralwidget)
-
-        self.play_button.clicked.connect(self.player.play)
+        self.input = QLineEdit(self.centralwidget)
 
 
         MainWindow.setCentralWidget(self.centralwidget)
 
+    def handle_input(self):
+        self.input.clear()
+        input = self.input.text()
+        print(input)
+
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
-        self.uiWindow = Welcome_window()
-        self.uiToolTab = Bakery_Window()
-        self.startUIWindow()
+        self.welcome = Welcome_window()
+        self.bakery = Bakery_Window()
+        self.startWelcome()
 
-    def startUIToolTab(self):
-        self.uiToolTab.setupUI(self)
-        self.uiToolTab.CPSBTN.clicked.connect(self.startUIWindow)
+    def startBakery(self):
+        self.bakery.setupUI(self)
+        self.bakery.CPSBTN.clicked.connect(self.startWelcome)
+        self.bakery.play_button.clicked.connect(self.bakery.player.play)
+        self.bakery.input.returnPressed.connect(self.bakery.handle_input)
+
         self.show()
 
-    def startUIWindow(self):
-        self.uiWindow.setupUI(self)
-        self.uiWindow.ToolsBTN.clicked.connect(self.startUIToolTab)
+    def startWelcome(self):
+        self.welcome.setupUI(self)
+        self.welcome.ToolsBTN.clicked.connect(self.startBakery)
         self.show()
 
 
@@ -137,12 +144,7 @@ def main():
 
     ##main loop here
     app = QApplication(sys.argv)
-
     w = MainWindow()
-
-
-
-
 
     sys.exit(app.exec())
 
