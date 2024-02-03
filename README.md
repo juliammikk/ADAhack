@@ -4,4 +4,4 @@ Talk to your local baker in Italian and try to find the translations for five ba
 
 Note: This is a demo version; the back-end supports both language and setting configurations!
 
-(The model requires Ollama's `LLAMA2` model to be installed, as well as the Python libraries `PyQt6`, `translate`, `langchain`, and `gtts`).
+(To run the program, Ollama's `LLAMA2` model needs to be installed, as well as the Python libraries `PyQt6`, `translate`, `langchain`, and `gtts`).
