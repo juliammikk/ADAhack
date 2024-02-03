@@ -1,11 +1,10 @@
 import sys
 
-from PyQt6.QtCore import QUrl, QRect, Qt, QCoreApplication
+from PyQt6.QtCore import QUrl, QRect, Qt, QCoreApplication, QPropertyAnimation, QSequentialAnimationGroup, pyqtProperty
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QMainWindow, QLabel, QLineEdit
-from PyQt6.QtWidgets import (QWidget, QToolTip,
-    QPushButton, QApplication)
-from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import (QWidget, QToolTip, QPushButton, QApplication)
+from PyQt6.QtGui import QFont, QColor
 from PyQt6.uic.properties import QtWidgets, QtCore
 from ipywidgets.widgets import widget
 
@@ -34,6 +33,54 @@ class SoundPlayer(QWidget):
     def play_sound(self):
         self.player.play()
 
+
+class FlashingLineEdit(QLineEdit):
+    def __init__(self, parent=None, validation_rule=None):
+        super().__init__(parent)
+        self.validation_rule = validation_rule  # Custom validation rule passed as a lambda function
+        self.original_palette = self.palette()
+        self.setup_animation()
+        self.textChanged.connect(self.validate_input)  # Connect textChanged signal to validation slot
+
+    def setup_animation(self):
+        self.animation_group = QSequentialAnimationGroup(self)
+
+        # Flash in
+        self.flash_in = QPropertyAnimation(self, b"flashColor")
+        self.flash_in.setDuration(250)
+        self.flash_in.setStartValue(QColor("white"))
+        self.flash_in.setEndValue(QColor("red"))
+
+        # Flash out
+        self.flash_out = QPropertyAnimation(self, b"flashColor")
+        self.flash_out.setDuration(250)
+        self.flash_out.setStartValue(QColor("red"))
+        self.flash_out.setEndValue(QColor("white"))
+
+        self.animation_group.addAnimation(self.flash_in)
+        self.animation_group.addAnimation(self.flash_out)
+        self.animation_group.setLoopCount(3)
+
+    @pyqtProperty(QColor)
+    def flashColor(self):
+        return self.palette().color(self.backgroundRole())
+
+    @flashColor.setter
+    def flashColor(self, color):
+        palette = self.palette()
+        palette.setColor(self.backgroundRole(), color)
+        self.setPalette(palette)
+
+    def start_flashing(self):
+        if not self.animation_group.state() == QPropertyAnimation.State.Running:
+            self.animation_group.start()
+
+    def validate_input(self):
+        if self.validation_rule and not self.validation_rule(self.text()):
+            self.start_flashing()
+        else:
+            self.animation_group.stop()  # Stop flashing if input is valid
+            self.setPalette(self.original_palette)  # Reset to original palette
 
 
 class Example(QWidget):
@@ -107,15 +154,16 @@ class Bakery_Window(object):
         # player.play()
 
         self.play_button = QPushButton('Play', self.centralwidget)
-        self.input = QLineEdit(self.centralwidget)
-
+        validation_rule = lambda text: text.strip() == "aaaaa"
+        self.input = FlashingLineEdit(self.centralwidget, validation_rule=validation_rule)
 
         MainWindow.setCentralWidget(self.centralwidget)
 
     def handle_input(self):
+        text_input = self.input.text()
         self.input.clear()
-        input = self.input.text()
-        print(input)
+        print(text_input)
+
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
