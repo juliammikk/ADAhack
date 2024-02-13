@@ -14,3 +14,5 @@ The demo sets the second language to Italian and the setting to a bakery. Five s
 
 ### Requirements
 To run the program, Ollama's `LLAMA2` model needs to be installed locally, as well as the Python libraries `PyQt6`, `langchain`, `translate`, and `gtts`).
+
+README author: Jakub Malý (https://github.com/jakub-maly)
